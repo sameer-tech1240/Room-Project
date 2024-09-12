@@ -1,23 +1,23 @@
 package com.room.api.exception;
 
-import org.aspectj.weaver.NewConstructorTypeMunger;
-import org.springframework.http.HttpStatus;
+import com.room.api.vo.ErrorDetailsVO;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import com.room.api.common.RoomApiCommonDTO;
-
-@ControllerAdvice
+@RestControllerAdvice
 public class GlobalExceptionHandler {
-     @ExceptionHandler(ResourceNotFound.class)
-	public ResponseEntity<?> exceptionHandller(ResourceNotFound found){
-    	     String message = found.getMessage();
-    	 return new ResponseEntity<>(message , HttpStatus.NOT_FOUND);
-    	 
-    	 
-		  
-		
-	}
-	
+
+    @ExceptionHandler(RMException.class)
+    public ResponseEntity<?> multiExceptionHandler(RMException rmException, HttpServletRequest httpServletRequest) {
+        ErrorDetailsVO errorDetailsVO = new ErrorDetailsVO();
+        errorDetailsVO.setErrorCode(rmException.getCode());
+        errorDetailsVO.setErrorMessage(rmException.getMessage());
+        errorDetailsVO.setRequestURI(httpServletRequest.getRequestURI());
+        errorDetailsVO.setResult(false);
+        errorDetailsVO.setHttpStatus(rmException.getHttpStatus());
+        return ResponseEntity.status(rmException.getHttpStatus()).body(errorDetailsVO);
+    }
+
 }

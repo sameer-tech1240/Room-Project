@@ -1,21 +1,23 @@
 package com.room.api.service;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.room.api.constant.RoomApiConstant;
+import com.room.api.dao.IEmpRepository;
+import com.room.api.exception.RMException;
+import com.room.api.model.Employee;
+import com.room.api.model.EmployeeDTO;
+import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import com.room.api.constant.RoomApiConstant;
-import com.room.api.dao.IEmpRepository;
-import com.room.api.exception.ExceptionHandler;
-import com.room.api.exception.ResourceNotFound;
-import com.room.api.model.Employee;
-import com.room.api.model.EmployeeDTO;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Service
+@Log4j2
 public class EmployeeService implements IEmployeeService {
 
 	@Autowired
@@ -27,47 +29,37 @@ public class EmployeeService implements IEmployeeService {
 	public String createEmployee(Employee employee) {
 		Employee save = empRepository.save(employee);
 		return "saved";
+
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
-	public EmployeeDTO getEmpById(int id) {
-		try {
-			Employee byId = empRepository.getById(id);
-			EmployeeDTO dto = new EmployeeDTO();
-			if (byId != null) {
-				dto.setId(byId.getId());
-				dto.setName(byId.getName());
-				dto.setAddress(byId.getAddress());
-				dto.setCity(byId.getCity());
-				dto.setZipCode(byId.getZipCode());
-			} else {
-				dto.setId(byId.getId());
-			}
-			return dto;
-		}catch (Exception e) {
-		ExceptionHandler build = ExceptionHandler.builder()
-			.failMessage("unable to fetch data")
-			.failCode("ROOM404")
-			.build();
-		return build;
+	public EmployeeDTO getEmpById(int id) throws RMException {
+		Optional<Employee> employee = empRepository.findById(id);
+		log.info("Employee db response:{}",employee.toString());
+		if (employee.isEmpty()) {
+			throw new RMException(RoomApiConstant.ERROR_CODE, RoomApiConstant.ERROR_MESSAGE, HttpStatus.NOT_FOUND);
 		}
+		EmployeeDTO dto = new EmployeeDTO();
+		Employee employeeToBeConvertToDTO = employee.get();
+		dto.setId(employeeToBeConvertToDTO.getId());
+		dto.setName(employeeToBeConvertToDTO.getName());
+		dto.setAddress(employeeToBeConvertToDTO.getAddress());
+		dto.setCity(employeeToBeConvertToDTO.getCity());
+		dto.setZipCode(employeeToBeConvertToDTO.getZipCode());
+		return dto;
 	}
 
 	@Override
 	public List<EmployeeDTO> getAllEmp() {
 		List<Employee> findAll = empRepository.findAll();
 		if (!CollectionUtils.isEmpty(findAll)) {
-			List<EmployeeDTO> convertEntityToDTO = this.convertEntityToDTO(findAll);
-
-			return convertEntityToDTO;
+			return this.convertEntityToDTO(findAll);
 		}
 		return null;
-
 	}
 
 	private List<EmployeeDTO> convertEntityToDTO(List<Employee> findAll) {
-		ArrayList<EmployeeDTO> dtos = new ArrayList<>();
+		List<EmployeeDTO> employeeDtoList = new ArrayList<>();
 		for (Employee employee : findAll) {
 			EmployeeDTO dto = new EmployeeDTO();
 			dto.setId(employee.getId());
@@ -75,39 +67,31 @@ public class EmployeeService implements IEmployeeService {
 			dto.setAddress(employee.getAddress());
 			dto.setZipCode(employee.getZipCode());
 			dto.setCity(employee.getCity());
-			dtos.add(dto);
+			employeeDtoList.add(dto);
 		}
-
-		return dtos;
+		return employeeDtoList;
 
 	}
 
 	@Override
-	public String deleteById(int id) throws ResourceNotFound {
-		Employee employee = empRepository.findById(id).
-				orElseThrow(() -> new ResourceNotFound("id is not found","R004", "delete not happened", "dlt"));
-
-		if (employee != null) {
-			empRepository.deleteById(employee.getId());
-			return RoomApiConstant.MESSAGE_FOR_SUCCESS_DLT + id;
-		} else {
-			return RoomApiConstant.MESSAGE_FOR_ID_NOT_FOUND + id;
+	public String deleteById(int id) throws RMException  {
+		Optional<Employee> employee = empRepository.findById(id);
+		if (employee.isEmpty()) {
+			throw new RMException(RoomApiConstant.ERROR_CODE, RoomApiConstant.ERROR_MESSAGE, HttpStatus.NOT_FOUND);
 		}
-
+		empRepository.deleteById(id);
+		return RoomApiConstant.MESSAGE_FOR_SUCCESS_DLT + id;
 	}
 
 	@Override
-	public EmployeeDTO updateEmployeeById(int id, Employee emp) {
-		Employee employee = empRepository.findById(id).orElse(null);
-		if(employee!= null) {
-			employee.setName(emp.getName());
-			employee.setCity(emp.getCity());
-			Employee updatEmployee = empRepository.save(employee);
-			EmployeeDTO emplDto = modelMapper.map(updatEmployee, EmployeeDTO.class);
-			return emplDto;
+	public EmployeeDTO updateEmployeeById(int id, Employee emp) throws RMException {
+		Optional<Employee> employee = empRepository.findById(id);
+		if (employee.isEmpty()) {
+			throw new RMException(RoomApiConstant.ERROR_CODE, RoomApiConstant.ERROR_MESSAGE, HttpStatus.NOT_FOUND);
 		}
-		return null;
-		
+		emp.setId(employee.get().getId());
+		Employee updatEmployee = empRepository.save(emp);
+		return modelMapper.map(updatEmployee, EmployeeDTO.class);
 	}
 
 }
