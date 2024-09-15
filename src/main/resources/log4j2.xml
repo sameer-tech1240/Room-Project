@@ -1,31 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="WARN">
+<Configuration status="info">
     <Properties>
-        <!-- Define the log path property -->
-        <Property name="log-path">D:/log</Property>
+        <Property name="LOG_DIR">D:/sameer-codes only/SB-ROOM/log</Property>
+        <Property name="PATTERN">%d{yyyy-MM-dd HH:mm:ss,SSS} : %X{track-id} : %-6p : %F:%L : %m%n</Property>
     </Properties>
+
     <Appenders>
-        <!-- Console appender to output logs to the console -->
-        <Console name="ConsoleAppender" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} [%t] %-5level %logger{36} - %msg%n"/>
+        <Console name="LogToConsole" target="SYSTEM_OUT">
+            <PatternLayout pattern="${PATTERN}" />
         </Console>
 
-        <!-- RollingFile appender to write logs to a file on the D: drive -->
-        <RollingFile name="FileAppender" fileName="${log-path}/roomapi.log"
-                     filePattern="${log-path}/roomapi-%d{yyyy-MM-dd}-%i.log">
-            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} [%t] %-5level %logger{36} - %msg%n"/>
+        <RollingFile name="LogToFile"
+                     fileName="${LOG_DIR}/room.log"
+                     filePattern="${LOG_DIR}/$${date:yyyy-MM}/app-%d{MM-dd-yyyy}-%i.log.gz"
+                     ignoreExceptions="false">
+            <PatternLayout>
+                <Pattern>${PATTERN}</Pattern>
+            </PatternLayout>
             <Policies>
-                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
-                <SizeBasedTriggeringPolicy size="10 MB"/>
+                <TimeBasedTriggeringPolicy interval="1"/>
             </Policies>
+            <DefaultRolloverStrategy max="5" />
         </RollingFile>
     </Appenders>
     <Loggers>
-        <!-- Root logger configuration -->
-        <Root level="info">
-            <!-- Reference both the Console and File appenders -->
-            <AppenderRef ref="ConsoleAppender"/>
-            <AppenderRef ref="FileAppender"/>
+        <Logger name="com.room.api" level="debug" additivity="false" includeLocation="true">
+            <AppenderRef ref="LogToFile" />
+            <AppenderRef ref="LogToConsole" />
+        </Logger>
+        <Logger name="org.springframework" level="info" additivity="false" includeLocation="true">
+            <AppenderRef ref="LogToConsole" />
+        </Logger>
+        <Root level="info" includeLocation="true">
+            <AppenderRef ref="LogToFile" />
+            <AppenderRef ref="LogToConsole" />
         </Root>
     </Loggers>
 </Configuration>

@@ -53,8 +53,9 @@ public class EmployeeApi {
 
 	@GetMapping("/getEmpById/{id}")
 	public ResponseEntity<EmployeeDTO> getEmpById(@PathVariable("id") int empId) throws RMException {
-		EmployeeDTO empById = service.getEmpById(empId);
-        log.info("db details for this id:{}", empById);
+		log.info("Request for this API accessing:{}",empId);
+        EmployeeDTO empById = service.getEmpById(empId);
+        log.info("db details for this request:{}", empById);
 		return ResponseEntity.ok(empById);
 
 	}
