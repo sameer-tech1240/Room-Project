@@ -27,6 +27,7 @@ public class EmployeeService implements IEmployeeService {
 
 	@Override
 	public String createEmployee(Employee employee) {
+		log.info("employee request :{}", employee);
 		Employee save = empRepository.save(employee);
 		return "saved";
 
