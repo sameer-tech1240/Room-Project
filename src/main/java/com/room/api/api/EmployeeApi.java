@@ -3,26 +3,19 @@
  */
 package com.room.api.api;
 
-import java.util.List;
-
 import com.room.api.exception.RMException;
-import lombok.extern.log4j.Log4j2;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-
 import com.room.api.model.Employee;
 import com.room.api.model.EmployeeDTO;
 import com.room.api.service.IEmployeeService;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * this is API
@@ -51,14 +44,14 @@ public class EmployeeApi {
 
     }
 
-	@GetMapping("/getEmpById/{id}")
-	public ResponseEntity<EmployeeDTO> getEmpById(@PathVariable("id") int empId) throws RMException {
-		log.info("Request for this API accessing:{}",empId);
+    @GetMapping("/getEmpById/{id}")
+    public ResponseEntity<EmployeeDTO> getEmpById(@PathVariable("id") int empId) throws RMException {
+        log.info("Request for this API accessing:{}", empId);
         EmployeeDTO empById = service.getEmpById(empId);
         log.info("db details for this request:{}", empById);
-		return ResponseEntity.ok(empById);
+        return ResponseEntity.ok(empById);
 
-	}
+    }
 
     /**
      * Using request param
@@ -104,8 +97,25 @@ public class EmployeeApi {
     @PutMapping("/updateById/{empId}")
     public ResponseEntity<EmployeeDTO> updateEmpById(@PathVariable("empId") int id, @RequestBody Employee employee) throws RMException {
         EmployeeDTO updateEmployeeById = service.updateEmployeeById(id, employee);
-		return new ResponseEntity<>(updateEmployeeById, HttpStatus.OK);
+        return new ResponseEntity<>(updateEmployeeById, HttpStatus.OK);
 
+    }
+
+    @GetMapping("/generate_pdf/{id}")
+    public ResponseEntity<byte[]> generatePdf(@PathVariable int id) {
+        try {
+            byte[] pdfContent = service.generatePDF(id);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.setContentDispositionFormData("inline", "generated.pdf");
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .body(pdfContent);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(null);
+        }
     }
 
 }

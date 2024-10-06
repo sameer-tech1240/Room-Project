@@ -1,10 +1,10 @@
 package com.room.api.service;
 
-import java.util.List;
-
 import com.room.api.exception.RMException;
 import com.room.api.model.Employee;
 import com.room.api.model.EmployeeDTO;
+
+import java.util.List;
 
 public interface IEmployeeService {
 
@@ -17,5 +17,7 @@ public interface IEmployeeService {
     String deleteById(int id) throws RMException;
 
     EmployeeDTO updateEmployeeById(int id, Employee employee) throws RMException;
+
+    byte[] generatePDF(int id);
 
 }
