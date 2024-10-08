@@ -8,9 +8,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @Log4j2
 public class RoomApiApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(RoomApiApplication.class, args);
-		log.info("Starting Room API:");
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(RoomApiApplication.class, args);
+        log.info("Starting Room API:");
+    }
 
 }
