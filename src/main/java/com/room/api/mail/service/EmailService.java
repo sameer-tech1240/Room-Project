@@ -12,6 +12,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.util.Objects;
 
 @Service
 @Log4j2
@@ -43,13 +44,11 @@ public class EmailService implements IEmailService {
             log.info("path of file location :{}", pdfFilePath);
 
             FileSystemResource file = new FileSystemResource(new File(pdfFilePath));
-            helper.addAttachment(file.getFilename(), file);
+            helper.addAttachment(Objects.requireNonNull(file.getFilename()), file);
 
             // Send the email
             javaMailSender.send(message);
-        } catch (RuntimeException e) {
-            throw new RuntimeException(e);
-        } catch (MessagingException e) {
+        } catch (RuntimeException | MessagingException e) {
             throw new RuntimeException(e);
         }
 
