@@ -13,17 +13,17 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.tomcat.util.http.fileupload.ByteArrayOutputStream;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -61,26 +61,21 @@ public class EmployeeService implements IEmployeeService {
     }
 
     @Override
-    public List<EmployeeDTO> getAllEmp() {
-        List<Employee> findAll = empRepository.findAll();
-        if (!CollectionUtils.isEmpty(findAll)) {
-            return this.convertEntityToDTO(findAll);
-        }
-        return null;
+    public Page<EmployeeDTO> getAllEmp(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);  // Define pagination
+        Page<Employee> employeePage = empRepository.findAll(pageable);
+
+        return employeePage.map(this::convertEntityToDTO);
     }
 
-    private List<EmployeeDTO> convertEntityToDTO(List<Employee> findAll) {
-        List<EmployeeDTO> employeeDtoList = new ArrayList<>();
-        for (Employee employee : findAll) {
-            EmployeeDTO dto = new EmployeeDTO();
-            dto.setId(employee.getId());
-            dto.setName(employee.getName());
-            dto.setAddress(employee.getAddress());
-            dto.setZipCode(employee.getZipCode());
-            dto.setCity(employee.getCity());
-            employeeDtoList.add(dto);
-        }
-        return employeeDtoList;
+    private EmployeeDTO convertEntityToDTO(Employee employee) {
+        EmployeeDTO dto = new EmployeeDTO();
+        dto.setId(employee.getId());
+        dto.setName(employee.getName());
+        dto.setAddress(employee.getAddress());
+        dto.setZipCode(employee.getZipCode());
+        dto.setCity(employee.getCity());
+        return dto;
 
     }
 

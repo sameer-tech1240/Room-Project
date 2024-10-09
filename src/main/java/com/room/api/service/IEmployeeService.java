@@ -3,8 +3,7 @@ package com.room.api.service;
 import com.room.api.exception.RMException;
 import com.room.api.model.Employee;
 import com.room.api.model.EmployeeDTO;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
 
 public interface IEmployeeService {
 
@@ -12,7 +11,7 @@ public interface IEmployeeService {
 
     EmployeeDTO getEmpById(int id) throws RMException;
 
-    List<EmployeeDTO> getAllEmp();
+    Page<EmployeeDTO> getAllEmp(int page, int pageSize);
 
     String deleteById(int id) throws RMException;
 

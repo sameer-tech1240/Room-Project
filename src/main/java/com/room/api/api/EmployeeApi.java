@@ -8,14 +8,13 @@ import com.room.api.model.Employee;
 import com.room.api.model.EmployeeDTO;
 import com.room.api.service.IEmployeeService;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 /**
  * this is API
@@ -79,12 +78,16 @@ public class EmployeeApi {
      */
 
     @GetMapping("/getAll")
-    public ResponseEntity<List<EmployeeDTO>> getAllEmployee() {
-        List<EmployeeDTO> allEmp = service.getAllEmp();
-        if (allEmp != null) {
-            return new ResponseEntity<>(allEmp, HttpStatus.CREATED);
+    public ResponseEntity<Page<EmployeeDTO>> getAllEmployee(
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "10") int size) {
+        Page<EmployeeDTO> allEmp = service.getAllEmp(page, size);
+
+        if (!allEmp.isEmpty()) {
+            return new ResponseEntity<>(allEmp, HttpStatus.OK);
         }
-        return new ResponseEntity<>(allEmp, HttpStatus.NO_CONTENT);
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 
     }
 
