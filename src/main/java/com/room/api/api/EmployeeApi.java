@@ -80,8 +80,10 @@ public class EmployeeApi {
     @GetMapping("/getAll")
     public ResponseEntity<Page<EmployeeDTO>> getAllEmployee(
             @RequestParam(required = false, defaultValue = "0") int page,
-            @RequestParam(required = false, defaultValue = "10") int size) {
-        Page<EmployeeDTO> allEmp = service.getAllEmp(page, size);
+            @RequestParam(required = false, defaultValue = "10") int size,
+            @RequestParam(required = false, defaultValue = "ASC") String orderBy,
+            @RequestParam(required = false, defaultValue = "id") String order) {
+        Page<EmployeeDTO> allEmp = service.getAllEmp(page, size, orderBy, order);
 
         if (!allEmp.isEmpty()) {
             return new ResponseEntity<>(allEmp, HttpStatus.OK);

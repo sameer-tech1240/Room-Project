@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -61,8 +62,9 @@ public class EmployeeService implements IEmployeeService {
     }
 
     @Override
-    public Page<EmployeeDTO> getAllEmp(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);  // Define pagination
+    public Page<EmployeeDTO> getAllEmp(int page, int size, String orderBy, String order) {
+        Sort.Direction sortDirection = Sort.Direction.fromString(orderBy);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, order));  // Define pagination
         Page<Employee> employeePage = empRepository.findAll(pageable);
 
         return employeePage.map(this::convertEntityToDTO);

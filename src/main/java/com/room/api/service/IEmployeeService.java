@@ -11,7 +11,7 @@ public interface IEmployeeService {
 
     EmployeeDTO getEmpById(int id) throws RMException;
 
-    Page<EmployeeDTO> getAllEmp(int page, int pageSize);
+    Page<EmployeeDTO> getAllEmp(int page, int pageSize, String orderBy, String order);
 
     String deleteById(int id) throws RMException;
 
